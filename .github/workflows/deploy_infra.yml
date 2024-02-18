@@ -20,7 +20,7 @@ jobs:
       runs-on: ubuntu-latest
       defaults:
         run:
-          working-directory: packages/infrastructure
+          working-directory: terrafor_stuff/
       permissions:
         id-token: write # required to use OIDC authentication
         contents: read # required to checkout the code from the repo
@@ -33,7 +33,7 @@ jobs:
           with:
             role-to-assume: ${{ inputs.role-to-assume }}
             role-duration-seconds: 900
-            aws-region: eu-west-1
+            aws-region: eu-east-1
   
         - uses: hashicorp/setup-terraform@v2.0.3
           with:
