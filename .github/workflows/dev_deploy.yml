@@ -12,11 +12,11 @@ on:
 jobs:
   Pre-Commit:
     name: Pre-Commit
-    uses: aws_architecture_beginner/.github/workflows/run_pre_commit.yml@main
+    uses: ShubhamShree1320/aws_architecture_beginner/.github/workflows/run_pre_commit.yml@main
 
   Dev-Plan:
     name: Dev-Plan
-    uses: aws_architecture_beginner/.github/workflows/plan_only.yml@main
+    uses: ShubhamShree1320/aws_architecture_beginner/.github/workflows/plan_only.yml@main
     with:
       role-to-assume: arn:aws:iam::167339939270:role/adapt-github-actions-role
       environment: dev
@@ -25,7 +25,7 @@ jobs:
   Dev-Deploy:
     name: Dev-Deploy
     if: github.event_name == 'workflow_dispatch'
-    uses: aws_architecture_beginner/.github/workflows/deploy_infra.yml@main
+    uses: ShubhamShree1320/aws_architecture_beginner/.github/workflows/deploy_infra.yml@main
     with:
       role-to-assume: arn:aws:iam::167339939270:role/adapt-github-actions-role
       environment: dev
