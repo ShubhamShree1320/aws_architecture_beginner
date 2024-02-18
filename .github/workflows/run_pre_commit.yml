@@ -1,0 +1,21 @@
+name: Pre-Commit
+    
+on:
+  workflow_call:
+    
+jobs:
+      pre-commit-run:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+
+        - name: Setup TFlint
+          run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+        - name: Pre-Commit
+          run: |-
+            python -V
+            pip install pre-commit
+            pre-commit install
+            pre-commit run --all-files --show-diff-on-failure

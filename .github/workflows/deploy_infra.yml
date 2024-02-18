@@ -1,0 +1,66 @@
+name: Deploy Infra
+
+on:
+  workflow_call: # workflow call
+   inputs:
+    role-to-assume:
+      required: true
+      type: string
+    github_environment:
+      required: true
+      type: string
+    environment:
+      required: true
+      type: string
+
+jobs:
+    Terraform:
+      name: Deploy Infra
+      environment: ${{ inputs.github_environment }}
+      runs-on: ubuntu-latest
+      defaults:
+        run:
+          working-directory: packages/infrastructure
+      permissions:
+        id-token: write # required to use OIDC authentication
+        contents: read # required to checkout the code from the repo
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3
+          
+        - name: configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v1-node16
+          with:
+            role-to-assume: ${{ inputs.role-to-assume }}
+            role-duration-seconds: 900
+            aws-region: eu-west-1
+  
+        - uses: hashicorp/setup-terraform@v2.0.3
+          with:
+            terraform_version: 1.2.9
+  
+        - name: Terraform Init
+          id: init
+          run: terraform init -backend-config=environments/${{ inputs.environment }}/backend.tfvars -upgrade
+    
+        - name: Terraform Plan
+          id: plan
+          run: terraform plan --var-file=environments/${{ inputs.environment }}/variables.tfvars
+          continue-on-error: true
+  
+        - name: Plan OutCome
+          id: plan_outcome
+          run: |
+            echo "Plan ExitCode - ${{ steps.plan.outputs.exitcode }}"
+            exit ${{ steps.plan.outputs.exitcode }}
+        
+        - name: Terraform Apply
+          id: apply
+          if: ${{ steps.plan.outputs.exitcode == 0 }}
+          run: terraform apply --auto-approve --var-file=environments/${{ inputs.environment }}/variables.tfvars
+    
+        - name: Apply OutCome
+          id: apply_outcome
+          run: |
+            echo "Apply ExitCode - ${{ steps.apply.outputs.exitcode }}"
+            exit ${{ steps.apply.outputs.exitcode }}
